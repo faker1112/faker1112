@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faker - 英雄联盟传奇选手</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #c41e3a;
+            --accent-color: #ffd700;
+            --text-color: #ffffff;
+            --bg-dark: #0a0a0a;
+            --bg-card: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--secondary-color);
+        }
+
+        .achievement-card {
+            background-color: var(--bg-card);
+            border-left: 3px solid var(--secondary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(196, 30, 58, 0.2);
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .news-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .news-date {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-card);
+            color: var(--text-color);
+            margin-right: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        .contact-info {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .contact-info i {
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+
+        .form-control {
+            background-color: var(--bg-card);
+            border: 1px solid #333;
+            color: var(--text-color);
+            border-radius: 4px;
+            padding: 10px 15px;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 4px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #a01830;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+            border-radius: 4px;
+            padding: 10px 28px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background-color: var(--bg-dark);
+            padding: 3rem 0;
+        }
+
+        .footer-logo {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+
+        .footer-link {
+            color: #888;
+            margin-bottom: 10px;
+            display: block;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--secondary-color);
+        }
+
+        .copyright {
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            margin-top: 30px;
+            color: #888;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .desktop-menu {
+                display: none;
+            }
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a01830;
+        }
+
+        /* 加载动画 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-logo {
+            width: 100px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 数据可视化容器 */
+        .data-visualization {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* 英雄池展示 */
+        .champion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+
+        .champion-item {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .champion-item:hover {
+            transform: scale(1.05);
+        }
+
+        .champion-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .champion-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 10;
+        }
+
+        .champion-item:hover .champion-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 滚动动画 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 粉丝交流区样式 */
+        .fan-section {
+            background-color: var(--bg-dark);
+            padding: 3rem 0;
+        }
+
+        .fan-card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .fan-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .fan-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .fan-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .fan-date {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .fan-message {
+            color: #ccc;
+        }
+
+        /* 冠军奖杯动画 */
+        .trophy-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+
+        .trophy {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotateY(0deg);
+            }
+            to {
+                transform: rotateY(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 加载动画 -->
+<div class="loader">
+    <div class="loader-content">
+        <img src="images/加载页.jpg" alt="大魔王">
+        <div class="text-xl font-bold">加载中...</div>
+    </div>
+</div>
+
+<!-- 导航栏 -->
+<nav class="fixed top-0 left-0 w-full bg-black bg-opacity-80 backdrop-blur-md z-50 py-4">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+        <a href="#" class="flex items-center">
+            <img src="images/ti.logo.jpg" alt="T1 Logo" class="h-10 mr-3">
+            <span class="text-xl font-bold text-white">Faker</span>
+        </a>
+
+        <!-- 桌面导航 -->
+        <div class="hidden md:flex space-x-8">
+            <a href="#home" class="nav-link text-white hover:text-red-600">首页</a>
+            <a href="#about" class="nav-link text-white hover:text-red-600">个人资料</a>
+            <a href="#achievements" class="nav-link text-white hover:text-red-600">成就</a>
+            <a href="#stats" class="nav-link text-white hover:text-red-600">数据</a>
+            <a href="#news" class="nav-link text-white hover:text-red-600">新闻</a>
+            <a href="#fans" class="nav-link text-white hover:text-red-600">粉丝交流</a>
+        </div>
+
+        <!-- 移动端菜单按钮 -->
+        <div class="md:hidden">
+            <button id="menu-toggle" class="text-white focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="md:hidden bg-black bg-opacity-95 hidden">
+        <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+            <a href="#home" class="text-white hover:text-red-600 py-2">首页</a>
+            <a href="#about" class="text-white hover:text-red-600 py-2">个人资料</a>
+            <a href="#achievements" class="text-white hover:text-red-600 py-2">成就</a>
+            <a href="#stats" class="text-white hover:text-red-600 py-2">数据</a>
+            <a href="#news" class="text-white hover:text-red-600 py-2">新闻</a>
+            <a href="#fans" class="text-white hover:text-red-600 py-2">粉丝交流</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 英雄区 -->
+<section id="home" class="hero-section flex items-center justify-center">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content container mx-auto px-4 text-center">
+        <h1 class="text-5xl md:text-7xl font-bold mb-4 text-white">
+            <span class="text-red-600">Faker</span>
+            <span class="text-yellow-400">李相赫</span>
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 text-gray-300">英雄联盟历史第一人</p>
+        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+            <a href="#about" class="btn-primary">了解更多</a>
+            <a href="#achievements" class="btn-outline">查看成就</a>
+        </div>
+    </div>
+</section>
+
+<!-- 个人资料 -->
+<section id="about" class="py-20 bg-gray-900">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl md:text-4xl font-bold mb-12 text-white">个人资料</h2>
+
+        <div class="flex flex-col md:flex-row items-center md:items-start gap-10">
+            <div class="w-full md:w-1/3">
+                <div class="relative">
+                    <img src="https://p3-doubao-search-sign.byteimg.com/labis/image/fbbb15ef5208a032ab32e230d4efb1db~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778662923&x-signature=W4J6VgLYILyIhZaPuSiZA%2Fx%2FmjY%3D" alt="Faker" class="w-full rounded-lg shadow-lg">
+                    <div class="absolute -bottom-5 -right-5 bg-red-600 text-white rounded-full w-20 h-20 flex items-center justify-center text-xl font-bold">
+                        29
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full md:w-2/3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-red-500">本名</h3>
+                        <p class="text-white">李相赫 (Lee Sang-hyeok)</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-red-500">游戏ID</h3>
+                        <p class="text-white">Faker (曾用ID: GoJeonPa)</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-red-500">出生日期</h3>
+                        <p class="text-white">1996年5月7日</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-red-500">国籍</h3>
+                        <p class="text-white">韩国</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-red-500">位置</h3>
+                        <p class="text-white">中单 (Mid Lane)</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-red-500">战队</h3>
+                        <p class="text-white">T1 (2013年至今)</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 p-6 rounded-lg mb-8">
+                    <h3 class="text-lg font-semibold mb-4 text-red-500">职业生涯</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-white">出道与巅峰 (2013-2017)</h4>
+                            <p class="text-gray-300">2013年以路人王身份加入SKT T1（现T1），出道即惊艳全球，同年率队斩获S3全球总决赛冠军（MVP）。2015-2016年迎来统治期，连续夺得S5、S6全球总决赛冠军，成为首位三冠王。期间还多次赢得LCK联赛冠军、MSI季中冠军赛等荣誉。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-white">低谷与复兴 (2018-2023)</h4>
+                            <p class="text-gray-300">2017年后队伍经历重组，Faker一度陷入低谷，但始终坚守T1。2022年率队重返S赛决赛，2023年以27岁"高龄"带领新生代队友再夺S13全球总决赛冠军，达成史无前例的四冠王成就。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-white">五冠王传奇 (2024-至今)</h4>
+                            <p class="text-gray-300">2024年11月2日，Faker率领T1以3-2逆转LPL赛区一号种子BLG，夺得2024英雄联盟全球总决赛冠军并荣膺FMVP，这也是Faker第五次率队夺得全球总决赛冠军。同时，Faker也成为第一个在全球总决赛中达成500击杀的选手。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4 text-red-500">技术特点</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-white">操作与意识</h4>
+                            <p class="text-gray-300">以极限反应和精准计算闻名，擅长刺客型英雄（如劫、乐芙兰、阿狸）与后期大核（如瑞兹、发条）。经典名场面：2013年OGN决赛"双劫大战"残血反杀Ryu，封神操作载入电竞史册。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-white">英雄池与版本适应</h4>
+                            <p class="text-gray-300">职业生涯使用超80个不同英雄，兼具深度与广度，被称"中单教科书"。无论版本如何变动，始终维持顶级竞技状态。</p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-white">团队领袖</h4>
+                            <p class="text-gray-300">后期转型为团队大脑，承担指挥与决策重任，以冷静心态逆转战局的能力极强。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 成就展示 -->
+<section id="achievements" class="py-20 bg-black">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl md:text-4xl font-bold mb-12 text-white">荣誉成就</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div class="fade-in">
+
+                <h3 class="text-2xl font-bold mb-4 text-center text-yellow-400">全球总决赛冠军 × 6</h3>
+                <div class="space-y-4">
+                    <div class="achievement-card p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-semibold text-white">2013 World Championship</h4>
+                            <span class="text-red-500">MVP</span>
+                        </div>
+                        <p class="text-gray-400">SKT T1 3:0 RYL</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-semibold text-white">2015 World Championship</h4>
+                            <span class="text-yellow-400">冠军</span>
+                        </div>
+                        <p class="text-gray-400">SKT T1 3:1 KOO Tigers</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-semibold text-white">2016 World Championship</h4>
+                            <span class="text-red-500">MVP</span>
+                        </div>
+                        <p class="text-gray-400">SKT T1 3:2 Samsung Galaxy</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-semibold text-white">2023 World Championship</h4>
+                            <span class="text-yellow-400">冠军</span>
+                        </div>
+                        <p class="text-gray-400">T1 3:0 Weibo Gaming</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-semibold text-white">2024 World Championship</h4>
+                            <span class="text-red-500">MVP</span>
+                        </div>
+                        <p class="text-gray-400">T1 3:2 BLG</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-semibold text-white">2025 World Championship</h4>
+                            <span class="text-yellow-400">冠军</span>
+                        </div>
+                        <p class="text-gray-400">T1 3:2 KT</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fade-in">
+                <h3 class="text-2xl font-bold mb-6 text-center text-red-500">其他主要荣誉</h3>
+                <div class="space-y-4">
+                    <div class="achievement-card p-4 rounded-lg">
+                        <h4 class="font-semibold text-white mb-2">MSI季中冠军赛冠军 × 2</h4>
+                        <p class="text-gray-400">2016年、2017年</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <h4 class="font-semibold text-white mb-2">LCK联赛冠军 × 10</h4>
+                        <p class="text-gray-400">韩国联赛最高纪录保持者</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <h4 class="font-semibold text-white mb-2">亚运会金牌</h4>
+                        <p class="text-gray-400">2022年杭州亚运会英雄联盟项目金牌</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <h4 class="font-semibold text-white mb-2">英雄联盟名人堂</h4>
+                        <p class="text-gray-400">2024年成为首位入选英雄联盟官方名人堂的选手</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <h4 class="font-semibold text-white mb-2">TGA最佳电竞选手</h4>
+                        <p class="text-gray-400">2017年、2023年、2024年</p>
+                    </div>
+                    <div class="achievement-card p-4 rounded-lg">
+                        <h4 class="font-semibold text-white mb-2">LCK 1000场比赛</h4>
+                        <p class="text-gray-400">2025年4月10日，成为首位在LCK中出战达到1000场的选手</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fade-in">
+            <h3 class="text-2xl font-bold mb-6 text-center text-white">职业生涯数据</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="stat-card p-6 text-center">
+                    <div class="stat-number">951</div>
+                    <div class="text-gray-400">总胜场</div>
+                </div>
+                <div class="stat-card p-6 text-center">
+                    <div class="stat-number">4.1</div>
+                    <div class="text-gray-400">KDA</div>
+                </div>
+                <div class="stat-card p-6 text-center">
+                    <div class="stat-number">8.9</div>
+                    <div class="text-gray-400">每分钟补刀</div>
+                </div>
+                <div class="stat-card p-6 text-center">
+                    <div class="stat-number">66.6%</div>
+                    <div class="text-gray-400">胜率</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 比赛数据 -->
+<section id="stats" class="py-20 bg-gray-900">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl md:text-4xl font-bold mb-12 text-white">比赛数据</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            <div class="fade-in">
+                <div class="data-visualization">
+                    <h3 class="text-xl font-bold mb-4 text-white">KDA 统计</h3>
+                    <canvas id="kdaChart" height="300"></canvas>
+                </div>
+            </div>
+
+            <div class="fade-in">
+                <div class="data-visualization">
+                    <h3 class="text-xl font-bold mb-4 text-white">胜率统计</h3>
+                    <canvas id="winRateChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="fade-in">
+            <h3 class="text-2xl font-bold mb-6 text-white">英雄池</h3>
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="text-center p-4 bg-gray-900 rounded-lg">
+                        <div class="text-3xl font-bold text-red-500">87+</div>
+                        <div class="text-gray-400">使用过的英雄</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-900 rounded-lg">
+                        <div class="text-3xl font-bold text-red-500">196</div>
+                        <div class="text-gray-400">阿兹尔使用场次</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-900 rounded-lg">
+                        <div class="text-3xl font-bold text-red-500">78.9%</div>
+                        <div class="text-gray-400">乐芙兰胜率</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-900 rounded-lg">
+                        <div class="text-3xl font-bold text-red-500">328</div>
+                        <div class="text-gray-400">单杀次数</div>
+                    </div>
+                </div>
+
+                <h4 class="text-lg font-semibold mb-4 text-white">常用英雄</h4>
+                <div class="champion-grid">
+                    <!-- 这里将通过JavaScript动态生成英雄池 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 新闻动态 -->
+<section id="news" class="py-20 bg-black">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl md:text-4xl font-bold mb-12 text-white">新闻动态</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="news-card fade-in">
+                <img src="https://p3-doubao-search-sign.byteimg.com/tos-cn-i-ezhpy3drpa/d078d29b244445b1a7d7470c612cce8f~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778661885&x-signature=Y2MpJ37iL1z4cjMoF9fi97kOfDw%3D" alt="Faker MVP" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <div class="news-date mb-2">2024年11月2日</div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Faker荣获2024全球总决赛FMVP</h3>
+                    <p class="text-gray-400 mb-4">在2024英雄联盟全球总决赛中，Faker率领T1以3-2逆转BLG，夺得冠军并荣膺FMVP，这是他职业生涯第五次获得全球总决赛冠军。</p>
+                    <a href="#" class="text-red-500 hover:text-red-400 font-medium flex items-center">
+                        阅读更多 <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="news-card fade-in">
+                <img src="https://p11-doubao-search-sign.byteimg.com/labis/ab26ecde00e72b6f15350748b8d0fd17~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778661885&x-signature=hbzQvUqZrJUYRhXryC4j4znaiGA%3D" alt="Faker 1000 games" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <div class="news-date mb-2">2025年4月10日</div>
+                    <h3 class="text-xl font-bold mb-3 text-white">Faker成为首位LCK千场选手</h3>
+                    <p class="text-gray-400 mb-4">在T1对阵KT的比赛中，Faker成为首位在LCK联赛中出战达到1000场的选手，创造了新的历史记录。</p>
+                    <a href="#" class="text-red-500 hover:text-red-400 font-medium flex items-center">
+                        阅读更多 <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="news-card fade-in">
+                <img src="https://p11-doubao-search-sign.byteimg.com/labis/14ba92bedf3da477d271e1930d489c4c~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1778661885&x-signature=%2B43dkLLrmr2weUnDE8cuOsy0I6M%3D" alt="Faker续约" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <div class="news-date mb-2">2025年7月27日</div>
+                    <h3 class="text-xl font-bold mb-3 text-white">T1官宣与Faker续约至2029年</h3>
+                    <p class="text-gray-400 mb-4">T1电子竞技俱乐部官方宣布与Faker选手续约至2029年，这意味着Faker将在T1度过他的整个职业生涯。</p>
+                    <a href="#" class="text-red-500 hover:text-red-400 font-medium flex items-center">
+                        阅读更多 <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="#" class="btn-outline">查看更多新闻</a>
+        </div>
+    </div>
+</section>
+
+<!-- 粉丝交流区 -->
+<section id="fans" class="py-20 bg-gray-900">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl md:text-4xl font-bold mb-12 text-white">粉丝交流区</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <h3 class="text-2xl font-bold mb-6 text-white">粉丝留言</h3>
+
+                <div class="space-y-6">
+                    <div class="fan-card fade-in">
+                        <div class="flex items-start">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Fan" class="fan-avatar">
+                            <div>
+                                <div class="fan-name">英雄联盟爱好者</div>
+                                <div class="fan-date">2025年11月10日</div>
+                                <div class="fan-message">Faker是我心目中的GOAT，他的职业生涯真的太传奇了！从S3到现在，一直保持着顶级水平，真的很不容易。希望他能继续打下去，创造更多奇迹！</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fan-card fade-in">
+                        <div class="flex items-start">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Fan" class="fan-avatar">
+                            <div>
+                                <div class="fan-name">T1粉丝</div>
+                                <div class="fan-date">2025年11月8日</div>
+                                <div class="fan-message">五冠王！Faker真的是历史第一人，没有之一。他的职业态度和对游戏的理解都是顶级的，希望T1能在明年继续保持这种状态，争取六冠！</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fan-card fade-in">
+                        <div class="flex items-start">
+                            <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Fan" class="fan-avatar">
+                            <div>
+                                <div class="fan-name">电竞爱好者</div>
+                                <div class="fan-date">2025年11月5日</div>
+                                <div class="fan-message">Faker不仅仅是一名优秀的选手，更是电竞行业的标杆。他的自律、专注和对胜利的渴望，值得每一个人学习。期待他在未来的比赛中继续发光发热！</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold mb-4 text-white">发表留言</h3>
+                    <form id="fan-message-form" class="fade-in">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <input type="text" placeholder="姓名" class="form-control" required>
+                            <input type="email" placeholder="邮箱" class="form-control" required>
+                        </div>
+                        <textarea placeholder="留言内容" class="form-control" rows="4" required></textarea>
+                        <button type="submit" class="btn-primary mt-4">提交留言</button>
+                    </form>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-bold mb-6 text-white">联系方式</h3>
+
+                <div class="contact-info mb-8 fade-in">
+                    <div class="mb-4">
+                        <i class="fas fa-envelope"></i>
+                        <span>shuohaoyiqizou@gmail.com</span>
+                    </div>
+                    <div>
+                        <i class="fas fa-weixin"></i>
+                        <span>Google-Ultra</span>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold mb-4 text-white">社交媒体</h3>
+                <div class="fade-in">
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="social-icon">
+                        <i class="fab fa-twitch"></i>
+                    </a>
+                </div>
+
+                <div class="mt-8 fade-in">
+                    <h3 class="text-xl font-bold mb-4 text-white">Faker粉丝交流群</h3>
+                    <div class="bg-gray-800 p-6 rounded-lg text-center">
+                        <p class="mb-4 text-gray-300">扫描下方二维码加入Faker粉丝交流群</p>
+                        <div class="bg-white p-2 inline-block rounded-lg">
+                            <img src="images/demo.jpg" alt="Faker粉丝群二维码" class="w-40 h-40">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <img src=images/demo.jpg" alt="T1 Logo" class="footer-logo">
+                <p class="text-gray-400">Faker官方网站 - 英雄联盟历史第一人</p>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-4">快速链接</h4>
+                <a href="#home" class="footer-link">首页</a>
+                <a href="#about" class="footer-link">个人资料</a>
+                <a href="#achievements" class="footer-link">成就</a>
+                <a href="#stats" class="footer-link">数据</a>
+                <a href="#news" class="footer-link">新闻</a>
+                <a href="#fans" class="footer-link">粉丝交流</a>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-4">相关链接</h4>
+                <a href="https://www.t1.gg" class="footer-link" target="_blank">T1官方网站</a>
+                <a href="https://www.lolesports.com" class="footer-link" target="_blank">英雄联盟赛事</a>
+                <a href="https://www.lck.kr" class="footer-link" target="_blank">LCK官方网站</a>
+                <a href="https://www.leagueoflegends.com" class="footer-link" target="_blank">英雄联盟官网</a>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-4">联系我们</h4>
+                <div class="mb-2">
+                    <i class="fas fa-envelope text-red-500 mr-2"></i>
+                    <span class="text-gray-400">shuohaoyiqizou@gmail.com</span>
+                </div>
+                <div class="mb-4">
+                    <i class="fas fa-weixin text-red-500 mr-2"></i>
+                    <span class="text-gray-400">Google-Ultra</span>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-red-500">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-red-500">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-red-500">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-red-500">
+                        <i class="fab fa-twitch"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright text-center">
+            <p>&copy; 2025 Faker官方网站. 六冠王传奇，永不止步.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 加载动画
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            document.querySelector('.loader').classList.add('hidden');
+        }, 1000);
+    });
+
+    // 移动端菜单
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+
+                // 如果是移动端，点击后关闭菜单
+                if (window.innerWidth < 768) {
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            }
+        });
+    });
+
+    // 滚动动画
+    function handleScrollAnimation() {
+        const elements = document.querySelectorAll('.fade-in');
+
+        elements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+
+            if (elementTop < windowHeight - 100) {
+                element.classList.add('visible');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', handleScrollAnimation);
+    window.addEventListener('load', handleScrollAnimation);
+
+    // Three.js 背景
+    function initThreeJsBackground() {
+        const canvas = document.getElementById('hero-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        const renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // 创建粒子
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1500;
+
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0xc41e3a,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 5;
+
+        // 添加光线
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(0, 0, 1);
+        scene.add(light);
+
+        // 动画
+        function animate() {
+            requestAnimationFrame(animate);
+
+            particlesMesh.rotation.y += 0.001;
+            particlesMesh.rotation.x += 0.0005;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // 响应式调整
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    }
+
+    // 初始化Three.js背景
+    if (window.THREE) {
+        initThreeJsBackground();
+    }
+
+    // 初始化图表
+    function initCharts() {
+        // KDA图表
+        const kdaCtx = document.getElementById('kdaChart').getContext('2d');
+        const kdaChart = new Chart(kdaCtx, {
+            type: 'line',
+            data: {
+                labels: ['S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14'],
+                datasets: [
+                    {
+                        label: '击杀',
+                        data: [4.6, 4.2, 5.2, 4.1, 2.9, 2.8, 3.1, 2.7, 2.8, 3.4, 2.9, 3.5],
+                        borderColor: '#c41e3a',
+                        backgroundColor: 'rgba(196, 30, 58, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: '死亡',
+                        data: [1.5, 2.1, 1.8, 2.3, 2.0, 1.9, 1.9, 1.8, 1.9, 2.5, 1.4, 2.1],
+                        borderColor: '#666666',
+                        backgroundColor: 'rgba(102, 102, 102, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: '助攻',
+                        data: [6.4, 5.8, 5.7, 5.2, 4.5, 4.6, 4.9, 5.1, 5.9, 5.3, 5.8, 5.7],
+                        borderColor: '#ffd700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 胜率图表
+        const winRateCtx = document.getElementById('winRateChart').getContext('2d');
+        const winRateChart = new Chart(winRateCtx, {
+            type: 'bar',
+            data: {
+                labels: ['S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14'],
+                datasets: [
+                    {
+                        label: '胜率 (%)',
+                        data: [72, 65, 78, 75, 68, 62, 70, 67, 64, 69, 73, 71],
+                        backgroundColor: [
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)',
+                            'rgba(196, 30, 58, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)',
+                            'rgba(196, 30, 58, 1)'
+                        ],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 初始化英雄池
+    function initChampionPool() {
+        const championData = [
+            { name: '阿兹尔', games: 196, winRate: 69.9 },
+            { name: '奥莉安娜', games: 92, winRate: 72.8 },
+            { name: '瑞兹', games: 84, winRate: 63.1 },
+            { name: '库奇', games: 83, winRate: 66.3 },
+            { name: '阿狸', games: 71, winRate: 66.2 },
+            { name: '加里奥', games: 69, winRate: 58.0 },
+            { name: '维克托', games: 68, winRate: 72.1 },
+            { name: '塔莉垭', games: 59, winRate: 69.5 },
+            { name: '乐芙兰', games: 57, winRate: 78.9 },
+            { name: '丽桑卓', games: 44, winRate: 79.5 },
+            { name: '阿卡丽', games: 36, winRate: 66.7 },
+            { name: '塞拉斯', games: 35, winRate: 68.6 },
+            { name: '佐伊', games: 33, winRate: 54.5 },
+            { name: '卡西奥佩娅', games: 32, winRate: 71.9 },
+            { name: '崔斯特', games: 31, winRate: 67.7 },
+            { name: '璐璐', games: 27, winRate: 59.3 }
+        ];
+
+        const championGrid = document.querySelector('.champion-grid');
+
+        championData.forEach(champion => {
+            const championItem = document.createElement('div');
+            championItem.className = 'champion-item';
+
+            // 使用随机颜色代替英雄图片
+            const colors = ['#c41e3a', '#ffd700', '#4b0082', '#008000', '#0000ff', '#800080'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            championItem.innerHTML = `
+                    <div style="background-color: ${randomColor}; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: white; font-weight: bold;">${champion.name.charAt(0)}</span>
+                    </div>
+                    <div class="champion-tooltip">
+                        <div>${champion.name}</div>
+                        <div>场次: ${champion.games}</div>
+                        <div>胜率: ${champion.winRate}%</div>
+                    </div>
+                `;
+
+            championGrid.appendChild(championItem);
+        });
+    }
+
+    // 表单提交
+    document.getElementById('fan-message-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // 模拟表单提交
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 提交中...';
+
+        setTimeout(() => {
+            submitButton.innerHTML = '<i class="fas fa-check mr-2"></i> 提交成功';
+
+            // 重置表单
+            this.reset();
+
+            // 恢复按钮状态
+            setTimeout(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+            }, 2000);
+        }, 1500);
+    });
+
+    // 页面加载完成后初始化
+    window.addEventListener('load', function() {
+        if (window.Chart) {
+            initCharts();
+        }
+
+        initChampionPool();
+    });
+</script>
+</body>
+</html>
